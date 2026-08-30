@@ -12,7 +12,7 @@ Este é um projeto de portfólio desenvolvido com preocupação em qualidade de 
 | -------- | ---------------------------------------- |
 | Frontend | Next.js, React, TypeScript, Tailwind CSS |
 | Backend  | NestJS, Node.js, TypeScript              |
-| Banco    | PostgreSQL + Prisma (Etapa 02)           |
+| Banco    | PostgreSQL + Prisma                      |
 | Testes   | Vitest (backend)                         |
 | Pacotes  | npm workspaces                           |
 
@@ -20,8 +20,10 @@ Este é um projeto de portfólio desenvolvido com preocupação em qualidade de 
 
 ```
 /
-  frontend/    # Next.js (porta 3000)
-  backend/     # NestJS API REST (porta 3001)
+  frontend/             # Next.js (porta 3000)
+  backend/              # NestJS API REST (porta 3001)
+  backend/prisma/       # Schema, migrations e seed
+  docker-compose.yml     # PostgreSQL local
 ```
 
 O frontend não acessa o banco. A comunicação é HTTP REST.
@@ -30,6 +32,7 @@ O frontend não acessa o banco. A comunicação é HTTP REST.
 
 - Node.js 20.9 ou superior
 - npm 10+
+- Docker Desktop (PostgreSQL via Compose)
 
 ## Como executar localmente
 
@@ -45,13 +48,24 @@ cp .env.example .env
 npm install
 ```
 
-3. Em um terminal, suba a API:
+3. Suba o PostgreSQL e aplique as migrations:
+
+```bash
+npm run db:up
+cp .env.example backend/.env
+npm run db:migrate
+npm run db:seed
+```
+
+O `prisma migrate` lê `backend/.env`. Use o mesmo `DATABASE_URL` do [`.env.example`](.env.example).
+
+4. Em um terminal, suba a API:
 
 ```bash
 npm run dev:backend
 ```
 
-4. Em outro terminal, suba o frontend:
+5. Em outro terminal, suba o frontend:
 
 ```bash
 npm run dev:frontend
@@ -65,6 +79,9 @@ npm run dev:frontend
 Na raiz do repositório:
 
 ```bash
+npm run db:up
+npm run db:migrate
+npm run db:seed
 npm run lint
 npm run typecheck
 npm run test
@@ -74,7 +91,13 @@ npm run format
 
 ## Variáveis de ambiente
 
-Veja [`.env.example`](.env.example). Não coloque secrets no código. `DATABASE_URL` entra na Etapa 02.
+Veja [`.env.example`](.env.example). Não coloque secrets no código.
+
+Para o Prisma, copie também para `backend/.env`:
+
+```bash
+cp .env.example backend/.env
+```
 
 ## Git
 
@@ -82,8 +105,8 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 
 ## Roadmap
 
-1. Inicialização do projeto (esta etapa)
-2. Banco de dados
+1. Inicialização do projeto
+2. Banco de dados (esta etapa)
 3. Autenticação
 4. Transações
 5. Categorias

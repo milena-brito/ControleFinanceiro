@@ -8,6 +8,10 @@
   "scripts": {
     "dev:frontend": "npm run dev -w frontend",
     "dev:backend": "npm run start:dev -w backend",
+    "db:up": "docker compose up -d",
+    "db:down": "docker compose down",
+    "db:migrate": "npm run prisma:migrate -w backend",
+    "db:seed": "npm run prisma:seed -w backend",
     "lint": "npm run lint -w frontend && npm run lint -w backend",
     "typecheck": "npm run typecheck -w frontend && npm run typecheck -w backend",
     "test": "npm run test -w backend",
