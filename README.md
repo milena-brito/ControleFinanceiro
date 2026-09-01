@@ -109,8 +109,8 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 
 1. Inicialização do projeto
 2. Banco de dados
-3. Autenticação (esta etapa)
-4. Transações
+3. Autenticação
+4. Transações (esta etapa)
 5. Categorias
 6. Dashboard
 7. Cálculo de gasto diário
