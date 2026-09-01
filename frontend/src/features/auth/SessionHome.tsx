@@ -1,7 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
+import { AppHeader } from '@/components/AppHeader';
 import { api, type PublicUser } from '@/lib/api';
 
 export function SessionHome() {
@@ -39,6 +41,11 @@ export function SessionHome() {
 
   return (
     <div className="flex flex-col gap-6">
+      <AppHeader
+        onLogout={() => {
+          void handleLogout();
+        }}
+      />
       <div>
         <p className="text-sm text-zinc-500">Olá,</p>
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
@@ -47,22 +54,19 @@ export function SessionHome() {
         <p className="mt-1 text-zinc-600">{user.email}</p>
       </div>
       <p className="text-zinc-600">
-        Você está autenticada. As transações entram na próxima etapa.
+        Acompanhe receitas e despesas em um só lugar.
       </p>
       {error ? (
         <p className="text-sm text-red-600" role="alert">
           {error}
         </p>
       ) : null}
-      <button
-        type="button"
-        onClick={() => {
-          void handleLogout();
-        }}
-        className="w-fit rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100"
+      <Link
+        href="/transacoes"
+        className="w-fit rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
       >
-        Sair
-      </button>
+        Ver transações
+      </Link>
     </div>
   );
 }
