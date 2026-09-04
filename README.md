@@ -74,6 +74,8 @@ npm run dev:frontend
 - Frontend: [http://localhost:3000](http://localhost:3000)
 - Cadastro: [http://localhost:3000/cadastro](http://localhost:3000/cadastro)
 - Login: [http://localhost:3000/login](http://localhost:3000/login)
+- Transações: [http://localhost:3000/transacoes](http://localhost:3000/transacoes)
+- Categorias: [http://localhost:3000/categorias](http://localhost:3000/categorias)
 - Saúde da API: [http://localhost:3001/health](http://localhost:3001/health)
 
 ## Scripts
@@ -110,8 +112,8 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 1. Inicialização do projeto
 2. Banco de dados
 3. Autenticação
-4. Transações (esta etapa)
-5. Categorias
+4. Transações
+5. Categorias (esta etapa)
 6. Dashboard
 7. Cálculo de gasto diário
 8. Testes
