@@ -2,6 +2,10 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { Prisma, type TransactionType } from '@prisma/client';
 import { PrismaService } from '../database/prisma.service.js';
 import type { DashboardQuery } from './dashboard.schema.js';
+import {
+  calculateDailyAllowance,
+  type DailyAllowance,
+} from './daily-allowance.js';
 
 const RECENT_LIMIT = 5;
 
@@ -27,6 +31,7 @@ export type DashboardSummary = {
     amount: string;
   }[];
   recentTransactions: DashboardTransaction[];
+  dailyAllowance: DailyAllowance;
 };
 
 @Injectable()
@@ -74,6 +79,12 @@ export class DashboardService {
       balance,
       expensesByCategory: await this.mapExpenseGroups(expenseGroups),
       recentTransactions: recent.map((row) => this.toTransaction(row)),
+      dailyAllowance: calculateDailyAllowance({
+        availableBalance: balance,
+        today: new Date().toISOString().slice(0, 10),
+        periodFrom: from,
+        periodTo: to,
+      }),
     };
   }
 

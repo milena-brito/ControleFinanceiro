@@ -115,8 +115,8 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 3. Autenticação
 4. Transações
 5. Categorias
-6. Dashboard (esta etapa)
-7. Cálculo de gasto diário
+6. Dashboard
+7. Cálculo de gasto diário (esta etapa)
 8. Testes
 9. Segurança
 10. Docker

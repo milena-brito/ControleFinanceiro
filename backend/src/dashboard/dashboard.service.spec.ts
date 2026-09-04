@@ -121,4 +121,30 @@ describe('DashboardService', () => {
     ).rejects.toBeInstanceOf(BadRequestException);
     expect(prisma.transaction.groupBy).not.toHaveBeenCalled();
   });
+
+  it('inclui o gasto diário calculado a partir do saldo e dos dias restantes', async () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date('2026-09-17T12:00:00.000Z'));
+    prisma.transaction.groupBy
+      .mockResolvedValueOnce([
+        { type: 'INCOME', _sum: { amount: { toString: () => '1400.00' } } },
+      ])
+      .mockResolvedValueOnce([]);
+    prisma.transaction.findMany.mockResolvedValue([]);
+
+    try {
+      const result = await service.getSummary(userId, {
+        from: '2026-09-01',
+        to: '2026-09-30',
+      });
+
+      expect(result.dailyAllowance).toEqual({
+        availableBalance: '1400.00',
+        remainingDays: 14,
+        dailyAmount: '100.00',
+      });
+    } finally {
+      vi.useRealTimers();
+    }
+  });
 });
