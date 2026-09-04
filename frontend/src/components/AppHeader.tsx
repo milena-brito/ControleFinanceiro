@@ -13,6 +13,9 @@ export function AppHeader({ onLogout }: { onLogout: () => void }) {
         <Link className="text-zinc-700 hover:text-zinc-900" href="/transacoes">
           Transações
         </Link>
+        <Link className="text-zinc-700 hover:text-zinc-900" href="/categorias">
+          Categorias
+        </Link>
         <button
           type="button"
           onClick={onLogout}

@@ -61,12 +61,20 @@ export function SessionHome() {
           {error}
         </p>
       ) : null}
-      <Link
-        href="/transacoes"
-        className="w-fit rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
-      >
-        Ver transações
-      </Link>
+      <div className="flex flex-wrap gap-3">
+        <Link
+          href="/transacoes"
+          className="w-fit rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800"
+        >
+          Ver transações
+        </Link>
+        <Link
+          href="/categorias"
+          className="w-fit rounded-lg border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-900 hover:bg-zinc-100"
+        >
+          Categorias
+        </Link>
+      </div>
     </div>
   );
 }
