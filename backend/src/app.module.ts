@@ -4,6 +4,7 @@ import { AuthModule } from './auth/auth.module.js';
 import { HealthModule } from './health/health.module.js';
 import { PrismaModule } from './database/prisma.module.js';
 import { CategoriesModule } from './categories/categories.module.js';
+import { DashboardModule } from './dashboard/dashboard.module.js';
 import { TransactionsModule } from './transactions/transactions.module.js';
 
 @Module({
@@ -16,6 +17,7 @@ import { TransactionsModule } from './transactions/transactions.module.js';
     AuthModule,
     CategoriesModule,
     TransactionsModule,
+    DashboardModule,
     HealthModule,
   ],
 })
