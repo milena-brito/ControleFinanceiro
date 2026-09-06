@@ -1,7 +1,12 @@
 import request from 'supertest';
 import { INestApplication } from '@nestjs/common';
+import { Prisma } from '@prisma/client';
 import { App } from 'supertest/types';
 import { ACCESS_TOKEN_COOKIE } from '../src/auth/auth.constants.js';
+import {
+  DATABASE_UNAVAILABLE_MESSAGE,
+  UNEXPECTED_ERROR_MESSAGE,
+} from '../src/common/http-exception.constants.js';
 import { authCookie, createPrismaStub, createTestApp } from './create-app.js';
 
 describe('Auth (e2e)', () => {
@@ -88,6 +93,38 @@ describe('Auth (e2e)', () => {
       email: 'milena@email.com',
     });
     expect(response.body).not.toHaveProperty('passwordHash');
+  });
+
+  it('POST /auth/login com banco indisponível devolve mensagem amigável', async () => {
+    prisma.user.findUnique.mockRejectedValue(
+      new Prisma.PrismaClientInitializationError(
+        'Environment variable not found: DATABASE_URL.',
+        '6.19.3',
+      ),
+    );
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'milena@email.com', password: 'senha1234' })
+      .expect(503);
+
+    expect(response.body.message).toBe(DATABASE_UNAVAILABLE_MESSAGE);
+    expect(JSON.stringify(response.body)).not.toContain('DATABASE_URL');
+  });
+
+  it('POST /auth/login com erro inesperado não devolve stack', async () => {
+    const error = new Error('falha secreta');
+    error.stack = 'Error: falha secreta\n    at secret.ts:1:1';
+    prisma.user.findUnique.mockRejectedValue(error);
+
+    const response = await request(app.getHttpServer())
+      .post('/auth/login')
+      .send({ email: 'milena@email.com', password: 'senha1234' })
+      .expect(500);
+
+    expect(response.body.message).toBe(UNEXPECTED_ERROR_MESSAGE);
+    expect(response.body).not.toHaveProperty('stack');
+    expect(JSON.stringify(response.body)).not.toContain('secret.ts');
   });
 
   afterEach(async () => {

@@ -98,6 +98,8 @@ npm run format
 
 Veja [`.env.example`](.env.example). Não coloque secrets no código.
 
+Em produção, `JWT_SECRET` e `FRONTEND_ORIGIN` são obrigatórios. Não use os valores de exemplo.
+
 Para o Prisma, copie também para `backend/.env`:
 
 ```bash
@@ -120,6 +122,12 @@ npm run test:e2e -w backend
 
 Não usam o PostgreSQL: o Prisma é substituído por um stub.
 
+## Segurança
+
+A API aplica cabeçalhos HTTP com Helmet, CORS restrito a `FRONTEND_ORIGIN` e cookie de sessão `httpOnly`. Login e cadastro têm limite de tentativas por IP. Erros internos não devolvem stack nem detalhes do banco; falha de conexão vira 503 com mensagem amigável.
+
+O `npm audit` ainda aponta avisos no Prisma 6 (`deepmerge-ts`) e no `qs` do Express. Não foram forçadas atualizações que quebrariam o Nest 12.
+
 ## Git
 
 O desenvolvimento acontece em branches de feature, a partir de `develop`. `main` recebe apenas versões estáveis.
@@ -133,8 +141,8 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 5. Categorias
 6. Dashboard
 7. Cálculo de gasto diário
-8. Testes (esta etapa)
-9. Segurança
+8. Testes
+9. Segurança (esta etapa)
 10. Docker
 11. CI/CD
 12. Polimento final
