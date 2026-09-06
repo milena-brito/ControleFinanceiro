@@ -64,6 +64,18 @@ describe('DashboardService', () => {
         where: expect.objectContaining({ userId }),
       }),
     );
+    expect(prisma.transaction.groupBy).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        by: ['categoryId'],
+        where: expect.objectContaining({ userId, type: 'EXPENSE' }),
+      }),
+    );
+    expect(prisma.transaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({ userId }),
+      }),
+    );
     expect(result).toEqual(
       expect.objectContaining({
         from: '2026-09-01',
