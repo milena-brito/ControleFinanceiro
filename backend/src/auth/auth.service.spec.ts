@@ -124,4 +124,32 @@ describe('AuthService', () => {
       });
     });
   });
+
+  describe('getProfile', () => {
+    it('devolve só os dados públicos do usuário autenticado', async () => {
+      prisma.user.findUnique.mockResolvedValue({
+        id: 'user-1',
+        name: 'Milena',
+        email: 'milena@email.com',
+        passwordHash: 'hash-secreto',
+      });
+
+      const result = await service.getProfile('user-1');
+
+      expect(result).toEqual({
+        id: 'user-1',
+        name: 'Milena',
+        email: 'milena@email.com',
+      });
+      expect(result).not.toHaveProperty('passwordHash');
+    });
+
+    it('rejeita perfil de usuário inexistente', async () => {
+      prisma.user.findUnique.mockResolvedValue(null);
+
+      await expect(service.getProfile('user-sumido')).rejects.toBeInstanceOf(
+        UnauthorizedException,
+      );
+    });
+  });
 });

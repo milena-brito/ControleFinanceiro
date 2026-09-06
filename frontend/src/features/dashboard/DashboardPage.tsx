@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { AppHeader } from '@/components/AppHeader';
 import { api, type PublicUser } from '@/lib/api';
-import type { DashboardSummary } from '@/lib/dashboard';
+import type { DailyAllowance, DashboardSummary } from '@/lib/dashboard';
 
 const currency = new Intl.NumberFormat('pt-BR', {
   style: 'currency',
@@ -91,7 +91,7 @@ export function DashboardPage() {
             {user.name}
           </h1>
           <p className="mt-1 text-zinc-600">
-            Quanto ganhou, quanto gastou e onde o dinheiro foi.
+            Quanto ganhou, quanto gastou e quanto ainda pode gastar.
           </p>
         </div>
         <label className="flex flex-col gap-1 text-sm text-zinc-700">
@@ -128,6 +128,7 @@ export function DashboardPage() {
           tone={Number(summary.balance) < 0 ? 'expense' : 'balance'}
         />
       </section>
+      <DailyAllowanceCard allowance={summary.dailyAllowance} />
       <section className="rounded-xl border border-zinc-200 bg-white p-4">
         <h2 className="text-lg font-medium text-zinc-900">
           Receitas x despesas
@@ -245,6 +246,43 @@ export function DashboardPage() {
         </Link>
       </div>
     </div>
+  );
+}
+
+function DailyAllowanceCard({ allowance }: { allowance: DailyAllowance }) {
+  const daily = Number(allowance.dailyAmount);
+  const remainingLabel =
+    allowance.remainingDays === 1
+      ? '1 dia restante'
+      : `${allowance.remainingDays} dias restantes`;
+
+  let message: string;
+  if (allowance.remainingDays === 0) {
+    message = 'Este período já terminou.';
+  } else if (daily < 0) {
+    message = `O ritmo está negativo em ${currency.format(Math.abs(daily))} por dia.`;
+  } else {
+    message = `Você pode gastar aproximadamente ${currency.format(daily)} por dia.`;
+  }
+
+  return (
+    <section className="rounded-xl border border-zinc-200 bg-white p-4">
+      <h2 className="text-lg font-medium text-zinc-900">
+        Quanto posso gastar por dia?
+      </h2>
+      <p className="mt-1 text-sm text-zinc-600">
+        Saldo disponível {currency.format(Number(allowance.availableBalance))} ·{' '}
+        {remainingLabel}
+      </p>
+      <p
+        className={`mt-3 text-2xl font-semibold tracking-tight ${
+          daily < 0 ? 'text-red-700' : 'text-zinc-900'
+        }`}
+      >
+        {allowance.remainingDays === 0 ? '—' : currency.format(daily)}
+      </p>
+      <p className="mt-1 text-sm text-zinc-600">{message}</p>
+    </section>
   );
 }
 

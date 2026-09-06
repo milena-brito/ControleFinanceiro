@@ -6,6 +6,12 @@ export type ExpenseByCategory = {
   amount: string;
 };
 
+export type DailyAllowance = {
+  availableBalance: string;
+  remainingDays: number;
+  dailyAmount: string;
+};
+
 export type DashboardSummary = {
   from: string;
   to: string;
@@ -14,4 +20,5 @@ export type DashboardSummary = {
   balance: string;
   expensesByCategory: ExpenseByCategory[];
   recentTransactions: TransactionItem[];
+  dailyAllowance: DailyAllowance;
 };

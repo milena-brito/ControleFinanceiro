@@ -104,6 +104,22 @@ Para o Prisma, copie também para `backend/.env`:
 cp .env.example backend/.env
 ```
 
+## Testes
+
+Na raiz:
+
+```bash
+npm test
+```
+
+Os testes e2e da API:
+
+```bash
+npm run test:e2e -w backend
+```
+
+Não usam o PostgreSQL: o Prisma é substituído por um stub.
+
 ## Git
 
 O desenvolvimento acontece em branches de feature, a partir de `develop`. `main` recebe apenas versões estáveis.
@@ -115,9 +131,9 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 3. Autenticação
 4. Transações
 5. Categorias
-6. Dashboard (esta etapa)
+6. Dashboard
 7. Cálculo de gasto diário
-8. Testes
+8. Testes (esta etapa)
 9. Segurança
 10. Docker
 11. CI/CD

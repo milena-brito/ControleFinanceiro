@@ -106,4 +106,63 @@ describe('TransactionsService', () => {
       NotFoundException,
     );
   });
+
+  it('filtra a listagem por tipo, categoria e período do próprio usuário', async () => {
+    prisma.transaction.findMany.mockResolvedValue([]);
+    prisma.transaction.count.mockResolvedValue(0);
+
+    await service.list(userId, {
+      page: 1,
+      limit: 20,
+      type: 'EXPENSE',
+      categoryId: '11111111-1111-4111-8111-111111111111',
+      from: '2026-09-01',
+      to: '2026-09-30',
+    });
+
+    expect(prisma.transaction.findMany).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: expect.objectContaining({
+          userId,
+          type: 'EXPENSE',
+          categoryId: '11111111-1111-4111-8111-111111111111',
+          date: {
+            gte: new Date('2026-09-01T00:00:00.000Z'),
+            lte: new Date('2026-09-30T00:00:00.000Z'),
+          },
+        }),
+      }),
+    );
+  });
+
+  it('atualiza transação própria', async () => {
+    prisma.transaction.findFirst.mockResolvedValue({
+      id: 'tx-1',
+      userId,
+    });
+    prisma.transaction.update.mockResolvedValue({
+      id: 'tx-1',
+      type: 'EXPENSE',
+      amount: { toString: () => '70.00' },
+      description: 'Jantar',
+      date: new Date('2026-09-01'),
+      categoryId: 'cat-1',
+      category: { id: 'cat-1', name: 'Alimentação' },
+    });
+
+    const result = await service.update(userId, 'tx-1', {
+      description: 'Jantar',
+      amount: 70,
+    });
+
+    expect(prisma.transaction.update).toHaveBeenCalledWith(
+      expect.objectContaining({
+        where: { id: 'tx-1' },
+        data: expect.objectContaining({
+          description: 'Jantar',
+        }),
+      }),
+    );
+    expect(result.description).toBe('Jantar');
+  });
 });
