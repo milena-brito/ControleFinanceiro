@@ -16,5 +16,41 @@ services:
       timeout: 5s
       retries: 10
 
+  backend:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: finansimple-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      DATABASE_URL: postgresql://finansimple:finansimple@postgres:5432/finansimple?schema=public
+      JWT_SECRET: finansimple-docker-local-nao-usar-em-producao
+      FRONTEND_ORIGIN: http://localhost:3000
+    ports:
+      - '3001:3001'
+
+  frontend:
+    profiles: ['app']
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:3001
+    container_name: finansimple-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      HOSTNAME: 0.0.0.0
+    ports:
+      - '3000:3000'
+
 volumes:
   finansimple_pgdata:
