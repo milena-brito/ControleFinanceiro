@@ -23,7 +23,7 @@ Este é um projeto de portfólio desenvolvido com preocupação em qualidade de 
   frontend/             # Next.js (porta 3000)
   backend/              # NestJS API REST (porta 3001)
   backend/prisma/       # Schema, migrations e seed
-  docker-compose.yml     # PostgreSQL local
+  docker-compose.yml     # PostgreSQL, API e frontend (perfil app)
 ```
 
 O frontend não acessa o banco. A comunicação é HTTP REST.
@@ -32,7 +32,7 @@ O frontend não acessa o banco. A comunicação é HTTP REST.
 
 - Node.js 20.9 ou superior
 - npm 10+
-- Docker Desktop (PostgreSQL via Compose)
+- Docker Desktop (PostgreSQL local; opcionalmente a API e o frontend)
 
 ## Como executar localmente
 
@@ -79,6 +79,27 @@ npm run dev:frontend
 - Categorias: [http://localhost:3000/categorias](http://localhost:3000/categorias)
 - Saúde da API: [http://localhost:3001/health](http://localhost:3001/health)
 
+## Rodar tudo no Docker
+
+Para subir PostgreSQL, API e frontend juntos:
+
+```bash
+npm run docker:up
+```
+
+- Frontend: [http://localhost:3000](http://localhost:3000)
+- API: [http://localhost:3001](http://localhost:3001)
+
+O backend aplica as migrations e o seed ao iniciar. O `JWT_SECRET` do Compose serve só para uso local; em produção use um valor próprio.
+
+Para parar:
+
+```bash
+npm run docker:down
+```
+
+O fluxo com Node na máquina (`npm run dev:frontend` / `npm run dev:backend`) continua igual: `npm run db:up` sobe só o PostgreSQL.
+
 ## Scripts
 
 Na raiz do repositório:
@@ -87,6 +108,8 @@ Na raiz do repositório:
 npm run db:up
 npm run db:migrate
 npm run db:seed
+npm run docker:up
+npm run docker:down
 npm run lint
 npm run typecheck
 npm run test
@@ -142,7 +165,7 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 6. Dashboard
 7. Cálculo de gasto diário
 8. Testes
-9. Segurança (esta etapa)
-10. Docker
+9. Segurança
+10. Docker (esta etapa)
 11. CI/CD
 12. Polimento final
