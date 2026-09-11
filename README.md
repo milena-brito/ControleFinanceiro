@@ -113,6 +113,7 @@ npm run docker:down
 npm run lint
 npm run typecheck
 npm run test
+npm run test:e2e
 npm run build
 npm run format
 ```
@@ -145,6 +146,10 @@ npm run test:e2e -w backend
 
 Não usam o PostgreSQL: o Prisma é substituído por um stub.
 
+## CI
+
+Pull requests e pushes em `develop` e `main` disparam o GitHub Actions: lint, typecheck, testes unitários, e2e e build. Não há deploy automático.
+
 ## Segurança
 
 A API aplica cabeçalhos HTTP com Helmet, CORS restrito a `FRONTEND_ORIGIN` e cookie de sessão `httpOnly`. Login e cadastro têm limite de tentativas por IP. Erros internos não devolvem stack nem detalhes do banco; falha de conexão vira 503 com mensagem amigável.
@@ -166,6 +171,6 @@ O desenvolvimento acontece em branches de feature, a partir de `develop`. `main`
 7. Cálculo de gasto diário
 8. Testes
 9. Segurança
-10. Docker (esta etapa)
-11. CI/CD
+10. Docker
+11. CI/CD (esta etapa)
 12. Polimento final
