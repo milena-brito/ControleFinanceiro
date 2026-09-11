@@ -29,6 +29,9 @@ jobs:
       - name: Instalar dependências
         run: npm ci
 
+      - name: Binários nativos do Linux
+        run: npm install --no-save --no-package-lock @oxlint/binding-linux-x64-gnu@1.80.0 lightningcss-linux-x64-gnu@1.33.0 @tailwindcss/oxide-linux-x64-gnu@4.3.3
+
       - name: Lint
         run: npm run lint
 
