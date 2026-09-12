@@ -1,9 +1,10 @@
+import type { Metadata } from 'next';
 import { DashboardPage } from '@/features/dashboard/DashboardPage';
 
+export const metadata: Metadata = {
+  title: 'Início',
+};
+
 export default function InicioPage() {
-  return (
-    <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-6 py-10">
-      <DashboardPage />
-    </div>
-  );
+  return <DashboardPage />;
 }

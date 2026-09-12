@@ -3,8 +3,12 @@ import Link from 'next/link';
 export default function Home() {
   return (
     <div className="flex min-h-full flex-1 flex-col items-center justify-center bg-zinc-50 px-6 py-16">
-      <main className="flex w-full max-w-lg flex-col gap-6 text-center sm:text-left">
-        <p className="text-sm font-medium tracking-wide text-zinc-500 uppercase">
+      <main
+        id="conteudo"
+        tabIndex={-1}
+        className="flex w-full max-w-lg flex-col gap-6 text-center outline-none sm:text-left"
+      >
+        <p className="text-sm font-medium tracking-wide text-zinc-600 uppercase">
           Controle financeiro pessoal
         </p>
         <h1 className="text-4xl font-semibold tracking-tight text-zinc-900">

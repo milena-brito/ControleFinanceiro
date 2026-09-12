@@ -2,8 +2,9 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AppHeader } from '@/components/AppHeader';
+import { AppPage } from '@/components/AppPage';
 import { api } from '@/lib/api';
+import { formatCurrency, formatDate } from '@/lib/format';
 import type { TransactionFormValues } from '@/lib/transaction-schemas';
 import type {
   CategoryOption,
@@ -12,11 +13,6 @@ import type {
   TransactionType,
 } from '@/lib/transactions';
 import { TransactionForm } from './TransactionForm';
-
-const currency = new Intl.NumberFormat('pt-BR', {
-  style: 'currency',
-  currency: 'BRL',
-});
 
 type Filters = {
   type: '' | TransactionType;
@@ -80,8 +76,15 @@ export function TransactionsPage() {
   }
 
   async function handleLogout() {
-    await api('/auth/logout', { method: 'POST' });
-    router.push('/');
+    setError(null);
+
+    try {
+      await api('/auth/logout', { method: 'POST' });
+      router.push('/');
+      router.refresh();
+    } catch {
+      setError('Não foi possível sair. Tente novamente.');
+    }
   }
 
   async function handleSubmit(values: TransactionFormValues) {
@@ -120,6 +123,10 @@ export function TransactionsPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!window.confirm('Excluir esta transação?')) {
+      return;
+    }
+
     setError(null);
 
     try {
@@ -136,19 +143,24 @@ export function TransactionsPage() {
 
   if (!ready) {
     return (
-      <p className="text-sm text-zinc-500" aria-live="polite">
-        Carregando...
-      </p>
+      <AppPage
+        onLogout={() => {
+          void handleLogout();
+        }}
+      >
+        <p className="text-sm text-zinc-600" aria-live="polite">
+          Carregando...
+        </p>
+      </AppPage>
     );
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <AppHeader
-        onLogout={() => {
-          void handleLogout();
-        }}
-      />
+    <AppPage
+      onLogout={() => {
+        void handleLogout();
+      }}
+    >
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
           Transações
@@ -179,53 +191,65 @@ export function TransactionsPage() {
       <section className="flex flex-col gap-3">
         <h2 className="text-lg font-medium text-zinc-900">Filtros</h2>
         <div className="grid gap-3 sm:grid-cols-4">
-          <select
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
-            value={filters.type}
-            onChange={(event) =>
-              void applyFilters({
-                ...filters,
-                type: event.target.value as '' | TransactionType,
-              })
-            }
-          >
-            <option value="">Todos os tipos</option>
-            <option value="INCOME">Receitas</option>
-            <option value="EXPENSE">Despesas</option>
-          </select>
-          <select
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
-            value={filters.categoryId}
-            onChange={(event) =>
-              void applyFilters({
-                ...filters,
-                categoryId: event.target.value,
-              })
-            }
-          >
-            <option value="">Todas as categorias</option>
-            {categories.map((category) => (
-              <option key={category.id} value={category.id}>
-                {category.name}
-              </option>
-            ))}
-          </select>
-          <input
-            type="date"
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
-            value={filters.from}
-            onChange={(event) =>
-              void applyFilters({ ...filters, from: event.target.value })
-            }
-          />
-          <input
-            type="date"
-            className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
-            value={filters.to}
-            onChange={(event) =>
-              void applyFilters({ ...filters, to: event.target.value })
-            }
-          />
+          <label className="flex flex-col gap-1 text-sm text-zinc-700">
+            Tipo
+            <select
+              className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
+              value={filters.type}
+              onChange={(event) =>
+                void applyFilters({
+                  ...filters,
+                  type: event.target.value as '' | TransactionType,
+                })
+              }
+            >
+              <option value="">Todos os tipos</option>
+              <option value="INCOME">Receitas</option>
+              <option value="EXPENSE">Despesas</option>
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-zinc-700">
+            Categoria
+            <select
+              className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
+              value={filters.categoryId}
+              onChange={(event) =>
+                void applyFilters({
+                  ...filters,
+                  categoryId: event.target.value,
+                })
+              }
+            >
+              <option value="">Todas as categorias</option>
+              {categories.map((category) => (
+                <option key={category.id} value={category.id}>
+                  {category.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-zinc-700">
+            De
+            <input
+              type="date"
+              className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
+              value={filters.from}
+              onChange={(event) =>
+                void applyFilters({ ...filters, from: event.target.value })
+              }
+            />
+          </label>
+          <label className="flex flex-col gap-1 text-sm text-zinc-700">
+            Até
+            <input
+              type="date"
+              className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-sm"
+              value={filters.to}
+              onChange={(event) =>
+                void applyFilters({ ...filters, to: event.target.value })
+              }
+            />
+          </label>
         </div>
       </section>
       {error ? (
@@ -234,8 +258,12 @@ export function TransactionsPage() {
         </p>
       ) : null}
       <section>
+        <h2 className="mb-3 text-lg font-medium text-zinc-900">Lançamentos</h2>
         {items.length === 0 ? (
-          <p className="text-zinc-600">Nenhuma transação neste filtro.</p>
+          <p className="text-zinc-600">
+            Nenhuma transação neste filtro. Use o formulário acima para lançar a
+            primeira.
+          </p>
         ) : (
           <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
             {items.map((item) => (
@@ -247,7 +275,7 @@ export function TransactionsPage() {
                   <p className="font-medium text-zinc-900">
                     {item.description}
                   </p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-zinc-600">
                     {item.category.name} · {formatDate(item.date)}
                   </p>
                 </div>
@@ -260,7 +288,7 @@ export function TransactionsPage() {
                     }
                   >
                     {item.type === 'INCOME' ? '+' : '-'}
-                    {currency.format(Number(item.amount))}
+                    {formatCurrency(Number(item.amount))}
                   </p>
                   <button
                     type="button"
@@ -284,7 +312,7 @@ export function TransactionsPage() {
           </ul>
         )}
       </section>
-    </div>
+    </AppPage>
   );
 }
 
@@ -300,9 +328,4 @@ async function fetchTransactions(
   return api<TransactionListResponse>(
     `/transactions${query ? `?${query}` : ''}`,
   );
-}
-
-function formatDate(isoDate: string): string {
-  const [year, month, day] = isoDate.split('-');
-  return `${day}/${month}/${year}`;
 }

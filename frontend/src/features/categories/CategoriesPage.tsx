@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AppHeader } from '@/components/AppHeader';
+import { AppPage } from '@/components/AppPage';
 import { api } from '@/lib/api';
 import type { Category } from '@/lib/categories';
 import type { CategoryFormValues } from '@/lib/category-schemas';
@@ -38,8 +38,15 @@ export function CategoriesPage() {
   }, [router]);
 
   async function handleLogout() {
-    await api('/auth/logout', { method: 'POST' });
-    router.push('/');
+    setError(null);
+
+    try {
+      await api('/auth/logout', { method: 'POST' });
+      router.push('/');
+      router.refresh();
+    } catch {
+      setError('Não foi possível sair. Tente novamente.');
+    }
   }
 
   async function handleSubmit(values: CategoryFormValues) {
@@ -73,6 +80,10 @@ export function CategoriesPage() {
   }
 
   async function handleDelete(id: string) {
+    if (!window.confirm('Excluir esta categoria?')) {
+      return;
+    }
+
     setError(null);
 
     try {
@@ -92,19 +103,24 @@ export function CategoriesPage() {
 
   if (!ready) {
     return (
-      <p className="text-sm text-zinc-500" aria-live="polite">
-        Carregando...
-      </p>
+      <AppPage
+        onLogout={() => {
+          void handleLogout();
+        }}
+      >
+        <p className="text-sm text-zinc-600" aria-live="polite">
+          Carregando...
+        </p>
+      </AppPage>
     );
   }
 
   return (
-    <div className="flex flex-col gap-8">
-      <AppHeader
-        onLogout={() => {
-          void handleLogout();
-        }}
-      />
+    <AppPage
+      onLogout={() => {
+        void handleLogout();
+      }}
+    >
       <div>
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
           Categorias
@@ -138,8 +154,11 @@ export function CategoriesPage() {
         </p>
       ) : null}
       <section>
+        <h2 className="mb-3 text-lg font-medium text-zinc-900">Lista</h2>
         {items.length === 0 ? (
-          <p className="text-zinc-600">Nenhuma categoria disponível.</p>
+          <p className="text-zinc-600">
+            Nenhuma categoria disponível. Crie a primeira no formulário acima.
+          </p>
         ) : (
           <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
             {items.map((item) => (
@@ -150,9 +169,9 @@ export function CategoriesPage() {
                 <div>
                   <p className="font-medium text-zinc-900">{item.name}</p>
                   {item.isDefault ? (
-                    <p className="text-sm text-zinc-500">Categoria padrão</p>
+                    <p className="text-sm text-zinc-600">Categoria padrão</p>
                   ) : (
-                    <p className="text-sm text-zinc-500">Sua categoria</p>
+                    <p className="text-sm text-zinc-600">Sua categoria</p>
                   )}
                 </div>
                 {item.isDefault ? null : (
@@ -180,6 +199,6 @@ export function CategoriesPage() {
           </ul>
         )}
       </section>
-    </div>
+    </AppPage>
   );
 }
