@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { FieldError } from '@/components/FieldError';
 import { api, type PublicUser } from '@/lib/api';
 import { loginSchema, type LoginFormValues } from '@/lib/auth-schemas';
 
@@ -44,26 +45,24 @@ export function LoginForm() {
         <input
           type="email"
           autoComplete="email"
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? 'login-email-erro' : undefined}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('email')}
         />
-        {errors.email ? (
-          <span className="text-sm text-red-600">{errors.email.message}</span>
-        ) : null}
+        <FieldError id="login-email-erro" message={errors.email?.message} />
       </label>
       <label className="flex flex-col gap-1 text-left text-sm text-zinc-700">
         Senha
         <input
           type="password"
           autoComplete="current-password"
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
+          aria-invalid={Boolean(errors.password)}
+          aria-describedby={errors.password ? 'login-senha-erro' : undefined}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('password')}
         />
-        {errors.password ? (
-          <span className="text-sm text-red-600">
-            {errors.password.message}
-          </span>
-        ) : null}
+        <FieldError id="login-senha-erro" message={errors.password?.message} />
       </label>
       {formError ? (
         <p className="text-sm text-red-600" role="alert">
@@ -73,6 +72,7 @@ export function LoginForm() {
       <button
         type="submit"
         disabled={isSubmitting}
+        aria-busy={isSubmitting}
         className="rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
       >
         {isSubmitting ? 'Entrando...' : 'Entrar'}

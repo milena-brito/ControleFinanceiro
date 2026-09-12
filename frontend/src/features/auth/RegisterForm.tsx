@@ -4,6 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { FieldError } from '@/components/FieldError';
 import { api, type PublicUser } from '@/lib/api';
 import { registerSchema, type RegisterFormValues } from '@/lib/auth-schemas';
 
@@ -44,38 +45,39 @@ export function RegisterForm() {
         <input
           type="text"
           autoComplete="name"
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? 'cadastro-nome-erro' : undefined}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('name')}
         />
-        {errors.name ? (
-          <span className="text-sm text-red-600">{errors.name.message}</span>
-        ) : null}
+        <FieldError id="cadastro-nome-erro" message={errors.name?.message} />
       </label>
       <label className="flex flex-col gap-1 text-left text-sm text-zinc-700">
         E-mail
         <input
           type="email"
           autoComplete="email"
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
+          aria-invalid={Boolean(errors.email)}
+          aria-describedby={errors.email ? 'cadastro-email-erro' : undefined}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('email')}
         />
-        {errors.email ? (
-          <span className="text-sm text-red-600">{errors.email.message}</span>
-        ) : null}
+        <FieldError id="cadastro-email-erro" message={errors.email?.message} />
       </label>
       <label className="flex flex-col gap-1 text-left text-sm text-zinc-700">
         Senha
         <input
           type="password"
           autoComplete="new-password"
-          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 outline-none focus:border-zinc-900"
+          aria-invalid={Boolean(errors.password)}
+          aria-describedby={errors.password ? 'cadastro-senha-erro' : undefined}
+          className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('password')}
         />
-        {errors.password ? (
-          <span className="text-sm text-red-600">
-            {errors.password.message}
-          </span>
-        ) : null}
+        <FieldError
+          id="cadastro-senha-erro"
+          message={errors.password?.message}
+        />
       </label>
       {formError ? (
         <p className="text-sm text-red-600" role="alert">
@@ -85,6 +87,7 @@ export function RegisterForm() {
       <button
         type="submit"
         disabled={isSubmitting}
+        aria-busy={isSubmitting}
         className="rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
       >
         {isSubmitting ? 'Criando conta...' : 'Criar conta'}

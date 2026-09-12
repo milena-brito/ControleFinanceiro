@@ -3,6 +3,7 @@
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
+import { FieldError } from '@/components/FieldError';
 import type { CategoryOption, TransactionItem } from '@/lib/transactions';
 import {
   transactionFormSchema,
@@ -77,40 +78,50 @@ export function TransactionForm({
           type="number"
           step="0.01"
           min="0.01"
+          aria-invalid={Boolean(errors.amount)}
+          aria-describedby={errors.amount ? 'transacao-valor-erro' : undefined}
           className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('amount')}
         />
-        {errors.amount ? (
-          <span className="text-sm text-red-600">{errors.amount.message}</span>
-        ) : null}
+        <FieldError
+          id="transacao-valor-erro"
+          message={errors.amount?.message}
+        />
       </label>
       <label className="flex flex-col gap-1 text-sm text-zinc-700 sm:col-span-2">
         Descrição
         <input
           type="text"
+          aria-invalid={Boolean(errors.description)}
+          aria-describedby={
+            errors.description ? 'transacao-descricao-erro' : undefined
+          }
           className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('description')}
         />
-        {errors.description ? (
-          <span className="text-sm text-red-600">
-            {errors.description.message}
-          </span>
-        ) : null}
+        <FieldError
+          id="transacao-descricao-erro"
+          message={errors.description?.message}
+        />
       </label>
       <label className="flex flex-col gap-1 text-sm text-zinc-700">
         Data
         <input
           type="date"
+          aria-invalid={Boolean(errors.date)}
+          aria-describedby={errors.date ? 'transacao-data-erro' : undefined}
           className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('date')}
         />
-        {errors.date ? (
-          <span className="text-sm text-red-600">{errors.date.message}</span>
-        ) : null}
+        <FieldError id="transacao-data-erro" message={errors.date?.message} />
       </label>
       <label className="flex flex-col gap-1 text-sm text-zinc-700">
         Categoria
         <select
+          aria-invalid={Boolean(errors.categoryId)}
+          aria-describedby={
+            errors.categoryId ? 'transacao-categoria-erro' : undefined
+          }
           className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('categoryId')}
         >
@@ -121,16 +132,16 @@ export function TransactionForm({
             </option>
           ))}
         </select>
-        {errors.categoryId ? (
-          <span className="text-sm text-red-600">
-            {errors.categoryId.message}
-          </span>
-        ) : null}
+        <FieldError
+          id="transacao-categoria-erro"
+          message={errors.categoryId?.message}
+        />
       </label>
       <div className="flex gap-2 sm:col-span-2">
         <button
           type="submit"
           disabled={submitting}
+          aria-busy={submitting}
           className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
         >
           {initial ? 'Salvar' : 'Adicionar'}

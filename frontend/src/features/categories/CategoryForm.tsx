@@ -2,6 +2,7 @@
 
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
+import { FieldError } from '@/components/FieldError';
 import type { Category } from '@/lib/categories';
 import {
   categoryFormSchema,
@@ -39,17 +40,18 @@ export function CategoryForm({
         Nome
         <input
           type="text"
+          aria-invalid={Boolean(errors.name)}
+          aria-describedby={errors.name ? 'categoria-nome-erro' : undefined}
           className="rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900"
           {...register('name')}
         />
-        {errors.name ? (
-          <span className="text-sm text-red-600">{errors.name.message}</span>
-        ) : null}
+        <FieldError id="categoria-nome-erro" message={errors.name?.message} />
       </label>
       <div className="flex gap-2">
         <button
           type="submit"
           disabled={submitting}
+          aria-busy={submitting}
           className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-white hover:bg-zinc-800 disabled:opacity-60"
         >
           {initial ? 'Salvar' : 'Adicionar'}

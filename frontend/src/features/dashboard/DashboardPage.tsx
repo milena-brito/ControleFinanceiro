@@ -3,14 +3,10 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { AppHeader } from '@/components/AppHeader';
+import { AppPage } from '@/components/AppPage';
 import { api, type PublicUser } from '@/lib/api';
 import type { DailyAllowance, DashboardSummary } from '@/lib/dashboard';
-
-const currency = new Intl.NumberFormat('pt-BR', {
-  style: 'currency',
-  currency: 'BRL',
-});
+import { formatCurrency, formatDate } from '@/lib/format';
 
 export function DashboardPage() {
   const router = useRouter();
@@ -65,9 +61,15 @@ export function DashboardPage() {
 
   if (!user || !summary) {
     return (
-      <p className="text-sm text-zinc-500" aria-live="polite">
-        Carregando...
-      </p>
+      <AppPage
+        onLogout={() => {
+          void handleLogout();
+        }}
+      >
+        <p className="text-sm text-zinc-600" aria-live="polite">
+          Carregando...
+        </p>
+      </AppPage>
     );
   }
 
@@ -78,15 +80,14 @@ export function DashboardPage() {
   const expenseShare = total === 0 ? 0 : (expense / total) * 100;
 
   return (
-    <div className="flex flex-col gap-8">
-      <AppHeader
-        onLogout={() => {
-          void handleLogout();
-        }}
-      />
+    <AppPage
+      onLogout={() => {
+        void handleLogout();
+      }}
+    >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="text-sm text-zinc-500">Olá,</p>
+          <p className="text-sm text-zinc-600">Olá,</p>
           <h1 className="text-3xl font-semibold tracking-tight text-zinc-900">
             {user.name}
           </h1>
@@ -111,20 +112,26 @@ export function DashboardPage() {
           {error}
         </p>
       ) : null}
-      <section className="grid gap-3 sm:grid-cols-3">
+      <section
+        aria-labelledby="resumo-titulo"
+        className="grid gap-3 sm:grid-cols-3"
+      >
+        <h2 id="resumo-titulo" className="sr-only">
+          Resumo do período
+        </h2>
         <SummaryCard
           label="Receitas"
-          value={currency.format(income)}
+          value={formatCurrency(income)}
           tone="income"
         />
         <SummaryCard
           label="Despesas"
-          value={currency.format(expense)}
+          value={formatCurrency(expense)}
           tone="expense"
         />
         <SummaryCard
           label="Saldo"
-          value={currency.format(Number(summary.balance))}
+          value={formatCurrency(Number(summary.balance))}
           tone={Number(summary.balance) < 0 ? 'expense' : 'balance'}
         />
       </section>
@@ -135,11 +142,21 @@ export function DashboardPage() {
         </h2>
         {total === 0 ? (
           <p className="mt-3 text-sm text-zinc-600">
-            Nenhuma transação neste período.
+            Nenhuma transação neste período.{' '}
+            <Link
+              href="/transacoes"
+              className="font-medium text-zinc-900 underline"
+            >
+              Lançar a primeira
+            </Link>
           </p>
         ) : (
           <div className="mt-4">
-            <div className="flex h-2.5 overflow-hidden rounded-full bg-zinc-100">
+            <div
+              className="flex h-2.5 overflow-hidden rounded-full bg-zinc-100"
+              role="img"
+              aria-label={`Receitas ${Math.round(incomeShare)} por cento, despesas ${Math.round(expenseShare)} por cento`}
+            >
               <div
                 className="bg-emerald-600"
                 style={{ width: `${incomeShare}%` }}
@@ -175,7 +192,7 @@ export function DashboardPage() {
                   <div className="mb-1 flex justify-between text-sm">
                     <span className="text-zinc-800">{item.name}</span>
                     <span className="font-medium text-zinc-900">
-                      {currency.format(Number(item.amount))}
+                      {formatCurrency(Number(item.amount))}
                     </span>
                   </div>
                   <div className="h-1.5 overflow-hidden rounded-full bg-zinc-100">
@@ -200,7 +217,15 @@ export function DashboardPage() {
           </Link>
         </div>
         {summary.recentTransactions.length === 0 ? (
-          <p className="text-zinc-600">Nenhuma transação neste período.</p>
+          <p className="text-zinc-600">
+            Nenhuma transação neste período.{' '}
+            <Link
+              href="/transacoes"
+              className="font-medium text-zinc-900 underline"
+            >
+              Lançar transação
+            </Link>
+          </p>
         ) : (
           <ul className="divide-y divide-zinc-200 rounded-xl border border-zinc-200 bg-white">
             {summary.recentTransactions.map((item) => (
@@ -212,7 +237,7 @@ export function DashboardPage() {
                   <p className="font-medium text-zinc-900">
                     {item.description}
                   </p>
-                  <p className="text-sm text-zinc-500">
+                  <p className="text-sm text-zinc-600">
                     {item.category.name} · {formatDate(item.date)}
                   </p>
                 </div>
@@ -224,7 +249,7 @@ export function DashboardPage() {
                   }
                 >
                   {item.type === 'INCOME' ? '+' : '-'}
-                  {currency.format(Number(item.amount))}
+                  {formatCurrency(Number(item.amount))}
                 </p>
               </li>
             ))}
@@ -245,7 +270,7 @@ export function DashboardPage() {
           Categorias
         </Link>
       </div>
-    </div>
+    </AppPage>
   );
 }
 
@@ -260,9 +285,9 @@ function DailyAllowanceCard({ allowance }: { allowance: DailyAllowance }) {
   if (allowance.remainingDays === 0) {
     message = 'Este período já terminou.';
   } else if (daily < 0) {
-    message = `O ritmo está negativo em ${currency.format(Math.abs(daily))} por dia.`;
+    message = `O ritmo está negativo em ${formatCurrency(Math.abs(daily))} por dia.`;
   } else {
-    message = `Você pode gastar aproximadamente ${currency.format(daily)} por dia.`;
+    message = `Você pode gastar aproximadamente ${formatCurrency(daily)} por dia.`;
   }
 
   return (
@@ -271,7 +296,7 @@ function DailyAllowanceCard({ allowance }: { allowance: DailyAllowance }) {
         Quanto posso gastar por dia?
       </h2>
       <p className="mt-1 text-sm text-zinc-600">
-        Saldo disponível {currency.format(Number(allowance.availableBalance))} ·{' '}
+        Saldo disponível {formatCurrency(Number(allowance.availableBalance))} ·{' '}
         {remainingLabel}
       </p>
       <p
@@ -279,7 +304,7 @@ function DailyAllowanceCard({ allowance }: { allowance: DailyAllowance }) {
           daily < 0 ? 'text-red-700' : 'text-zinc-900'
         }`}
       >
-        {allowance.remainingDays === 0 ? '—' : currency.format(daily)}
+        {allowance.remainingDays === 0 ? '—' : formatCurrency(daily)}
       </p>
       <p className="mt-1 text-sm text-zinc-600">{message}</p>
     </section>
@@ -304,7 +329,7 @@ function SummaryCard({
 
   return (
     <article className="rounded-xl border border-zinc-200 bg-white p-4">
-      <p className="text-sm text-zinc-500">{label}</p>
+      <p className="text-sm text-zinc-600">{label}</p>
       <p className={`mt-1 text-2xl font-semibold tracking-tight ${valueClass}`}>
         {value}
       </p>
@@ -332,9 +357,4 @@ function monthRange(yearMonth: string): { from: string; to: string } {
     from: `${year}-${mm}-01`,
     to: `${year}-${mm}-${String(lastDay).padStart(2, '0')}`,
   };
-}
-
-function formatDate(isoDate: string): string {
-  const [year, month, day] = isoDate.split('-');
-  return `${day}/${month}/${year}`;
 }
